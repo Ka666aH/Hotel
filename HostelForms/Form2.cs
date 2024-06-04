@@ -98,9 +98,9 @@ namespace HostelForms
                 }
 
                 var bedquery = from bed in HostelDb.Bed
-                             //join room in HostelDb.Room on bed.RoomId equals room.RoomId      //Не работает
-                             //where room.Number == short.Parse(comboBox2.Text)
-                             where bed.Number == short.Parse(comboBox3.Text)
+                               join room in HostelDb.Room on bed.RoomId equals room.RoomId      
+                               where room.Number == short.Parse(comboBox2.Text)
+                               where bed.Number == short.Parse(comboBox3.Text)
                              select bed.BedId;
 
                 var breakfastquery = from breakfast in HostelDb.Breakfast
@@ -115,6 +115,10 @@ namespace HostelForms
                                  where breakfast.Name == comboBox1.Text
                                  select breakfast.Cost;
 
+                var statusquery = from status in HostelDb.Status
+                                  where status.Name == "Ожидается оплата"
+                                  select status.StatusId;
+
                 decimal bill = bookingdates.Count * (Convert.ToDecimal(billquery1) + Convert.ToDecimal(billquery2));
 
                 HostelDb.Booking.Insert(() => new Booking
@@ -126,7 +130,7 @@ namespace HostelForms
                     CheckOutDate = dateTimePicker3.Value.Date,
                     BreakfastId = Guid.Parse(breakfastquery.ToString()),
                     Bill = bill,
-                    StatusName = "Ожидается оплата"
+                    StatusId = Guid.Parse(statusquery.ToString())
                     
                 });
                 Close();
@@ -223,16 +227,12 @@ namespace HostelForms
                             where bookingdates.Contains(bookedbed.BookedDate)
                             select bookedbed.BedId;
 
-            var query = from room in HostelDb.Room
-                        //.LoadWith(ri => ri.RoomId)
-                        //    .ThenLoad(b => b.)
-
-                        //join bed in HostelDb.Bed on room.RoomId equals bed.RoomId     //Не работает
-                        //where !subquery1.Contains(bed.BedId)
-                        where room.TenantsGender == Gender
-                        orderby room.Number
-                        select room.Number;
-            return query/*.LoadWith(q => q.Bed)*/.ToList();
+            var query = (from room in HostelDb.Room
+                        join bed in HostelDb.Bed on room.RoomId equals bed.RoomId      
+                        where !subquery1.Contains(bed.BedId) && room.TenantsGender == Gender
+                        //orderby room.Number
+                        select room.Number).Distinct();
+            return query.OrderBy(a => a).ToList();
         }
 
         public void GetBookingDates(DateTime startdate, DateTime enddate)
@@ -252,6 +252,30 @@ namespace HostelForms
                 dateTimePicker3.Value = dateTimePicker2.Value.AddDays(1);
             }
             GetBookingDates(dateTimePicker2.Value, dateTimePicker3.Value);
+        }
+
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            comboBox3.Items.Clear();
+            foreach(short number in GetBeds())
+            {
+                comboBox3.Items.Add(number);
+            }
+        }
+
+        public List<short> GetBeds()
+        {
+            using var HostelDb = new DbHostel();
+
+            var subquery1 = from bookedbed in HostelDb.BookedBed
+                            where bookingdates.Contains(bookedbed.BookedDate)
+                            select bookedbed.BedId;
+
+            var query = from bed in HostelDb.Bed
+                        join room in HostelDb.Room on bed.RoomId equals room.RoomId
+                        where room.Number == short.Parse(comboBox2.Text) && !subquery1.Contains(bed.BedId)
+                        select bed.Number;
+            return query.OrderBy(a => a).ToList();
         }
     }
 }

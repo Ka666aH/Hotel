@@ -11,14 +11,14 @@ using System.Windows.Forms;
 
 namespace HostelForms
 {
-    public partial class Form4 : Form
+    public partial class Form3 : Form
     {
         public static class Globals
         {
             public static short roomnumber;
             public static string guestname;
         }
-        public Form4()
+        public Form3()
         {
             InitializeComponent();
         }
@@ -52,10 +52,10 @@ namespace HostelForms
             using var HostelDb = new DbHostel();
 
             var query = from guest in HostelDb.Guest
-                        //join booking in HostelDb.Booking on guest.GuestId equals booking.GuestId      //Не работает
-                        //join bed in HostelDb.Bed on booking.BedId equals bed.BedId
-                        //join room in HostelDb.Room on bed.RoomId equals room.RoomId
-                        //where room.Number == Globals.roomnumber
+                        join booking in HostelDb.Booking on guest.GuestId equals booking.GuestId      //Не работает
+                        join bed in HostelDb.Bed on booking.BedId equals bed.BedId
+                        join room in HostelDb.Room on bed.RoomId equals room.RoomId
+                        where room.Number == Globals.roomnumber
                         select guest.FullName;
             return query.ToList();
         }
