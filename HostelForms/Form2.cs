@@ -42,22 +42,60 @@ namespace HostelForms
             {
                 message += "Заполните поле Номер телефона";
             }
+            if(comboBox2.Text == string.Empty)
+            {
+                message += "Выберите значение из списка в поле Комната";
+            }
+            if(comboBox3.Text == string.Empty)
+            {
+                message += "Выберите значение из списка в поле Комната";
+            }
             if (message != string.Empty)
             {
                 MessageBox.Show(message);
             }
             else
             {
+                Guid guestguid;
                 var HostelDb = new DbHostel();
-                Guid newguestguid = Guid.NewGuid();
-                HostelDb.Guest.Insert(() => new Guest
+
+                var guestquery1 = from guest in HostelDb.Guest
+                                 select new Guest
+                                 {
+                                     GuestId = Guid.Empty,
+                                     FullName = guest.FullName,
+                                     BirthDate = guest.BirthDate,
+                                     Gender = guest.Gender,
+                                     Phone = guest.Phone
+                                 };
+
+                Guest guest1 = new Guest
                 {
-                    GuestId = newguestguid,
+                    GuestId = Guid.Empty,
                     FullName = $"{textBox1.Text} {textBox2.Text} {textBox3.Text}",
                     BirthDate = dateTimePicker1.Value.Date,
                     Gender = checkBox1.Checked,
                     Phone = maskedTextBox1.Text
-                });
+                };
+
+                if (!guestquery1.Contains(guest1))
+                { 
+                    guestguid = Guid.NewGuid();
+                    HostelDb.Guest.Insert(() => new Guest
+                    {
+                        GuestId = guestguid,
+                        FullName = $"{textBox1.Text} {textBox2.Text} {textBox3.Text}",
+                        BirthDate = dateTimePicker1.Value.Date,
+                        Gender = checkBox1.Checked,
+                        Phone = maskedTextBox1.Text
+                    });
+                }
+                else
+                {
+                    var guestquery2 = from guest in HostelDb.Guest
+                                      select guest.GuestId;
+                    guestguid = Guid.Parse(guestquery2.ToString());
+                }
 
                 var bedquery = from bed in HostelDb.Bed
                              //join room in HostelDb.Room on bed.RoomId equals room.RoomId      //Не работает
@@ -83,7 +121,7 @@ namespace HostelForms
                 {
                     BookingId = Guid.NewGuid(),
                     BedId = Guid.Parse(bedquery.ToString()),
-                    GuestId = newguestguid,
+                    GuestId = guestguid,
                     CheckInDate = dateTimePicker2.Value.Date,
                     CheckOutDate = dateTimePicker3.Value.Date,
                     BreakfastId = Guid.Parse(breakfastquery.ToString()),

@@ -62,7 +62,7 @@
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(190, 35);
             this.button1.TabIndex = 30;
-            this.button1.Text = "Зарегистрировать";
+            this.button1.Text = "Забронировать";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
@@ -72,9 +72,9 @@
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.label7.Location = new System.Drawing.Point(63, 9);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(174, 31);
+            this.label7.Size = new System.Drawing.Size(196, 31);
             this.label7.TabIndex = 29;
-            this.label7.Text = "Регистрация";
+            this.label7.Text = "Бронирование";
             // 
             // label6
             // 
@@ -319,7 +319,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBox1);
             this.Name = "Form2";
-            this.Text = "Form2";
+            this.Text = "Бронирование";
             this.Load += new System.EventHandler(this.Form2_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
