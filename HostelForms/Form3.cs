@@ -121,5 +121,10 @@ namespace HostelForms
                 listBox2.Items.Add(guest);
             }
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
     }
 }

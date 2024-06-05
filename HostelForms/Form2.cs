@@ -142,7 +142,7 @@ namespace HostelForms
                 HostelDb.CommitTransaction();
                 //MessageBox.Show("yes");
                 //HostelDb.RollbackTransaction();
-                Close();
+                //Close();
 
             }
 
@@ -256,7 +256,12 @@ namespace HostelForms
 
         private void dateTimePicker2_ValueChanged(object sender, EventArgs e)
         {
-            if(dateTimePicker2.Value>=dateTimePicker3.Value)
+            if(dateTimePicker2.Value.Date<DateTime.Now.Date)
+            {
+                dateTimePicker2.Value = DateTime.Now.Date;
+            }
+
+            if(dateTimePicker2.Value.Date>=dateTimePicker3.Value.Date)
             {
                 //MessageBox.Show("Даты пребывания гостя введены неверно");
                 dateTimePicker3.Value = dateTimePicker2.Value.AddDays(1);
@@ -329,6 +334,11 @@ namespace HostelForms
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             GetBill();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Close();
         }
     }
 }
