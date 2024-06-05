@@ -53,15 +53,17 @@
             this.label11 = new System.Windows.Forms.Label();
             this.comboBox3 = new System.Windows.Forms.ComboBox();
             this.label12 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.textBox4 = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // button1
             // 
             this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.button1.Location = new System.Drawing.Point(55, 350);
+            this.button1.Location = new System.Drawing.Point(55, 376);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(190, 35);
-            this.button1.TabIndex = 30;
+            this.button1.TabIndex = 14;
             this.button1.Text = "Забронировать";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
@@ -79,7 +81,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(16, 314);
+            this.label6.Location = new System.Drawing.Point(16, 340);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(93, 13);
             this.label6.TabIndex = 28;
@@ -87,12 +89,12 @@
             // 
             // maskedTextBox1
             // 
-            this.maskedTextBox1.Location = new System.Drawing.Point(115, 311);
+            this.maskedTextBox1.Location = new System.Drawing.Point(115, 337);
             this.maskedTextBox1.Mask = "+7\\9000000000";
             this.maskedTextBox1.Name = "maskedTextBox1";
             this.maskedTextBox1.ResetOnSpace = false;
             this.maskedTextBox1.Size = new System.Drawing.Size(151, 20);
-            this.maskedTextBox1.TabIndex = 27;
+            this.maskedTextBox1.TabIndex = 13;
             this.maskedTextBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.maskedTextBox1_KeyPress);
             // 
             // dateTimePicker1
@@ -101,7 +103,7 @@
             this.dateTimePicker1.Location = new System.Drawing.Point(115, 131);
             this.dateTimePicker1.Name = "dateTimePicker1";
             this.dateTimePicker1.Size = new System.Drawing.Size(151, 20);
-            this.dateTimePicker1.TabIndex = 24;
+            this.dateTimePicker1.TabIndex = 4;
             this.dateTimePicker1.Value = new System.DateTime(2000, 1, 1, 0, 0, 0, 0);
             // 
             // checkBox2
@@ -110,7 +112,7 @@
             this.checkBox2.Location = new System.Drawing.Point(193, 155);
             this.checkBox2.Name = "checkBox2";
             this.checkBox2.Size = new System.Drawing.Size(73, 17);
-            this.checkBox2.TabIndex = 26;
+            this.checkBox2.TabIndex = 6;
             this.checkBox2.Text = "Женский";
             this.checkBox2.UseVisualStyleBackColor = true;
             this.checkBox2.CheckedChanged += new System.EventHandler(this.checkBox2_CheckedChanged);
@@ -123,7 +125,7 @@
             this.checkBox1.Location = new System.Drawing.Point(115, 155);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(72, 17);
-            this.checkBox1.TabIndex = 25;
+            this.checkBox1.TabIndex = 5;
             this.checkBox1.Text = "Мужской";
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
@@ -160,7 +162,7 @@
             this.textBox3.Location = new System.Drawing.Point(115, 104);
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(151, 20);
-            this.textBox3.TabIndex = 20;
+            this.textBox3.TabIndex = 3;
             this.textBox3.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox_KeyPress);
             // 
             // label2
@@ -177,7 +179,7 @@
             this.textBox2.Location = new System.Drawing.Point(115, 78);
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(151, 20);
-            this.textBox2.TabIndex = 18;
+            this.textBox2.TabIndex = 2;
             this.textBox2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox_KeyPress);
             // 
             // label1
@@ -194,7 +196,7 @@
             this.textBox1.Location = new System.Drawing.Point(115, 52);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(151, 20);
-            this.textBox1.TabIndex = 16;
+            this.textBox1.TabIndex = 1;
             this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox_KeyPress);
             // 
             // dateTimePicker2
@@ -203,7 +205,7 @@
             this.dateTimePicker2.Location = new System.Drawing.Point(115, 178);
             this.dateTimePicker2.Name = "dateTimePicker2";
             this.dateTimePicker2.Size = new System.Drawing.Size(151, 20);
-            this.dateTimePicker2.TabIndex = 32;
+            this.dateTimePicker2.TabIndex = 7;
             this.dateTimePicker2.Value = new System.DateTime(2024, 6, 4, 13, 8, 15, 0);
             this.dateTimePicker2.ValueChanged += new System.EventHandler(this.dateTimePicker2_ValueChanged);
             // 
@@ -222,7 +224,7 @@
             this.dateTimePicker3.Location = new System.Drawing.Point(115, 204);
             this.dateTimePicker3.Name = "dateTimePicker3";
             this.dateTimePicker3.Size = new System.Drawing.Size(151, 20);
-            this.dateTimePicker3.TabIndex = 34;
+            this.dateTimePicker3.TabIndex = 8;
             this.dateTimePicker3.ValueChanged += new System.EventHandler(this.dateTimePicker2_ValueChanged);
             // 
             // label9
@@ -250,7 +252,8 @@
             this.comboBox1.Location = new System.Drawing.Point(115, 284);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(151, 21);
-            this.comboBox1.TabIndex = 37;
+            this.comboBox1.TabIndex = 11;
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // comboBox2
             // 
@@ -259,7 +262,7 @@
             this.comboBox2.Location = new System.Drawing.Point(115, 230);
             this.comboBox2.Name = "comboBox2";
             this.comboBox2.Size = new System.Drawing.Size(151, 21);
-            this.comboBox2.TabIndex = 39;
+            this.comboBox2.TabIndex = 9;
             this.comboBox2.SelectedIndexChanged += new System.EventHandler(this.comboBox2_SelectedIndexChanged);
             // 
             // label11
@@ -278,7 +281,7 @@
             this.comboBox3.Location = new System.Drawing.Point(115, 257);
             this.comboBox3.Name = "comboBox3";
             this.comboBox3.Size = new System.Drawing.Size(151, 21);
-            this.comboBox3.TabIndex = 41;
+            this.comboBox3.TabIndex = 10;
             // 
             // label12
             // 
@@ -289,11 +292,30 @@
             this.label12.TabIndex = 40;
             this.label12.Text = "Кровать";
             // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(21, 314);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(88, 13);
+            this.label13.TabIndex = 43;
+            this.label13.Text = "Сумма к оплате";
+            // 
+            // textBox4
+            // 
+            this.textBox4.Location = new System.Drawing.Point(115, 311);
+            this.textBox4.Name = "textBox4";
+            this.textBox4.ReadOnly = true;
+            this.textBox4.Size = new System.Drawing.Size(151, 20);
+            this.textBox4.TabIndex = 12;
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 411);
+            this.ClientSize = new System.Drawing.Size(284, 428);
+            this.Controls.Add(this.label13);
+            this.Controls.Add(this.textBox4);
             this.Controls.Add(this.comboBox3);
             this.Controls.Add(this.label12);
             this.Controls.Add(this.comboBox2);
@@ -354,5 +376,7 @@
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.ComboBox comboBox3;
         private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.TextBox textBox4;
     }
 }

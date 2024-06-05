@@ -9,6 +9,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using LinqToDB;
+using System.Data.Common;
+
+/*todo
+
+ */
 
 namespace HostelForms
 {
@@ -16,6 +21,7 @@ namespace HostelForms
     {
         public List<DateTime> bookingdates = new List<DateTime>();
         public string message = string.Empty;
+        public decimal bill;
 
         public Form2()
         {
@@ -78,8 +84,24 @@ namespace HostelForms
                     Phone = maskedTextBox1.Text
                 };
 
+
+                var bedquery = from bed in HostelDb.Bed
+                               join room in HostelDb.Room on bed.RoomId equals room.RoomId      
+                               where room.Number == short.Parse(comboBox2.Text) && bed.Number == short.Parse(comboBox3.Text)
+                               select bed.BedId;
+
+                var breakfastquery = from breakfast in HostelDb.Breakfast
+                              where breakfast.Name == comboBox1.Text
+                              select breakfast.BreakfastId;
+
+                var statusquery = from status in HostelDb.Status
+                                  where status.Name == "Ожидается оплата"
+                                  select status.StatusId;
+
+                HostelDb.BeginTransaction();
+
                 if (!guestquery1.Contains(guest1))
-                { 
+                {
                     guestguid = Guid.NewGuid();
                     HostelDb.Guest.Insert(() => new Guest
                     {
@@ -94,45 +116,32 @@ namespace HostelForms
                 {
                     var guestquery2 = from guest in HostelDb.Guest
                                       select guest.GuestId;
-                    guestguid = Guid.Parse(guestquery2.ToString());
+                    guestguid = Guid.Parse(guestquery2.First().ToString());
                 }
 
-                var bedquery = from bed in HostelDb.Bed
-                               join room in HostelDb.Room on bed.RoomId equals room.RoomId      
-                               where room.Number == short.Parse(comboBox2.Text)
-                               where bed.Number == short.Parse(comboBox3.Text)
-                             select bed.BedId;
+                Booking booking = new Booking();
+                booking.BookingId = Guid.NewGuid();
+                booking.BedId = Guid.Parse(bedquery.First().ToString());
+                booking.GuestId = guestguid;
+                booking.CheckInDate = dateTimePicker2.Value.Date;
+                booking.CheckOutDate = dateTimePicker3.Value.Date;
+                booking.BreakfastId = Guid.Parse(breakfastquery.First().ToString());
+                booking.Bill = bill;
+                booking.StatusId = Guid.Parse(statusquery.First().ToString());
+                HostelDb.Insert(booking);
 
-                var breakfastquery = from breakfast in HostelDb.Breakfast
-                              where breakfast.Name == comboBox1.Text
-                              select breakfast.BreakfastId;
-
-                var billquery1 = from room in HostelDb.Room
-                                where room.Number == short.Parse(comboBox2.Text)
-                                select room.PricePerBed;
-
-                var billquery2 = from breakfast in HostelDb.Breakfast
-                                 where breakfast.Name == comboBox1.Text
-                                 select breakfast.Cost;
-
-                var statusquery = from status in HostelDb.Status
-                                  where status.Name == "Ожидается оплата"
-                                  select status.StatusId;
-
-                decimal bill = bookingdates.Count * (Convert.ToDecimal(billquery1) + Convert.ToDecimal(billquery2));
-
-                HostelDb.Booking.Insert(() => new Booking
+                foreach(DateTime date in bookingdates)
                 {
-                    BookingId = Guid.NewGuid(),
-                    BedId = Guid.Parse(bedquery.ToString()),
-                    GuestId = guestguid,
-                    CheckInDate = dateTimePicker2.Value.Date,
-                    CheckOutDate = dateTimePicker3.Value.Date,
-                    BreakfastId = Guid.Parse(breakfastquery.ToString()),
-                    Bill = bill,
-                    StatusId = Guid.Parse(statusquery.ToString())
-                    
-                });
+                    BookedBed bookedbed = new BookedBed();
+                    bookedbed.BookedBedId = Guid.NewGuid();
+                    bookedbed.BedId = Guid.Parse(bedquery.First().ToString());
+                    bookedbed.BookedDate = date.Date;
+                    HostelDb.Insert(bookedbed);
+                }
+
+                HostelDb.CommitTransaction();
+                //MessageBox.Show("yes");
+                //HostelDb.RollbackTransaction();
                 Close();
 
             }
@@ -154,6 +163,7 @@ namespace HostelForms
             {
                 comboBox2.Items.Add(number.ToString());
             }
+            comboBox3.Items.Clear();
         }
 
         private void checkBox2_CheckedChanged(object sender, EventArgs e)
@@ -191,8 +201,8 @@ namespace HostelForms
 
         private void Form2_Load(object sender, EventArgs e)
         {
-            dateTimePicker2.Value = DateTime.Now;
-            dateTimePicker3.Value = DateTime.Now.AddDays(1);
+            dateTimePicker2.Value = DateTime.Now.Date;
+            dateTimePicker3.Value = DateTime.Now.Date.AddDays(1);
 
             comboBox1.Items.Add("Нет");
             comboBox1.Text = comboBox1.Items[0].ToString();
@@ -201,10 +211,10 @@ namespace HostelForms
                 comboBox1.Items.Add(name);
             }
 
-            foreach(short number in GetAvalibleRoomsNumbers(checkBox1.Checked))
-            {
-                comboBox2.Items.Add(number.ToString());
-            }
+            //foreach(short number in GetAvalibleRoomsNumbers(checkBox1.Checked))
+            //{
+            //    comboBox2.Items.Add(number.ToString());
+            //}
 
         }
 
@@ -251,7 +261,16 @@ namespace HostelForms
                 //MessageBox.Show("Даты пребывания гостя введены неверно");
                 dateTimePicker3.Value = dateTimePicker2.Value.AddDays(1);
             }
+
             GetBookingDates(dateTimePicker2.Value, dateTimePicker3.Value);
+            foreach (short number in GetAvalibleRoomsNumbers(checkBox1.Checked))
+            {
+                comboBox2.Items.Add(number.ToString());
+            }
+            comboBox3.Items.Clear();
+
+            GetBill();
+
         }
 
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
@@ -261,6 +280,7 @@ namespace HostelForms
             {
                 comboBox3.Items.Add(number);
             }
+            GetBill();
         }
 
         public List<short> GetBeds()
@@ -268,14 +288,47 @@ namespace HostelForms
             using var HostelDb = new DbHostel();
 
             var subquery1 = from bookedbed in HostelDb.BookedBed
-                            where bookingdates.Contains(bookedbed.BookedDate)
+                            where bookingdates.Contains(bookedbed.BookedDate.Date)
                             select bookedbed.BedId;
+
+            //MessageBox.Show(subquery1.First().ToString());
 
             var query = from bed in HostelDb.Bed
                         join room in HostelDb.Room on bed.RoomId equals room.RoomId
                         where room.Number == short.Parse(comboBox2.Text) && !subquery1.Contains(bed.BedId)
                         select bed.Number;
             return query.OrderBy(a => a).ToList();
+        }
+
+        public void GetBill()
+        {
+            using var HostelDb = new DbHostel();
+            if(comboBox2.Text !=string.Empty && comboBox1.Text !=string.Empty)
+            {
+
+            var billquery1 = from room in HostelDb.Room
+                             where room.Number == short.Parse(comboBox2.Text)
+                             select room.PricePerBed;
+
+            var billquery2 = from breakfast in HostelDb.Breakfast
+                             where breakfast.Name == comboBox1.Text
+                             select breakfast.Cost;
+
+            decimal op1 = Convert.ToDecimal(billquery1.First().ToString());
+            decimal op2 = Convert.ToDecimal(billquery2.First().ToString());
+            bill = bookingdates.Count * (op1+op2);
+            textBox4.Text = bill.ToString("C");
+            //MessageBox.Show(decimal.Parse(textBox4.Text.Replace('₽',' ').Trim()).ToString());
+            }
+            else
+            {
+                textBox4.Text = string.Empty;
+            }
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            GetBill();
         }
     }
 }
