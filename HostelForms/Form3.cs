@@ -40,24 +40,47 @@ namespace HostelForms
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Globals.roomnumber = short.Parse(listBox1.SelectedItem.ToString());
-            listBox2.Items.Clear();
-            foreach (string guest in GetGuests())
-            {
-                listBox2.Items.Add(guest);
-            }
+            UpdateGuests();
         }
         public List<string> GetGuests()
         {
+            List<string> list = new List<string>();
             using var HostelDb = new DbHostel();
-
+            if(checkBox2.Checked)
+            {
             var query = from guest in HostelDb.Guest
-                        join booking in HostelDb.Booking on guest.GuestId equals booking.GuestId      //Не работает
+                        join booking in HostelDb.Booking on guest.GuestId equals booking.GuestId      
                         join bed in HostelDb.Bed on booking.BedId equals bed.BedId
                         join room in HostelDb.Room on bed.RoomId equals room.RoomId
-                        where room.Number == Globals.roomnumber
+                        join status in HostelDb.Status on booking.StatusId equals status.StatusId
+                        where room.Number == Globals.roomnumber && status.Name =="Завершено"
                         select guest.FullName;
-            return query.ToList();
+            list.AddRange(query.ToList());
+            }
+            if (checkBox3.Checked)
+            {
+                var query = from guest in HostelDb.Guest
+                            join booking in HostelDb.Booking on guest.GuestId equals booking.GuestId
+                            join bed in HostelDb.Bed on booking.BedId equals bed.BedId
+                            join room in HostelDb.Room on bed.RoomId equals room.RoomId
+                            join status in HostelDb.Status on booking.StatusId equals status.StatusId
+                            where room.Number == Globals.roomnumber && status.Name == "В процессе"
+                            select guest.FullName;
+                list.AddRange(query.ToList());
+            }
+            if (checkBox4.Checked)
+            {
+                var query = from guest in HostelDb.Guest
+                            join booking in HostelDb.Booking on guest.GuestId equals booking.GuestId
+                            join bed in HostelDb.Bed on booking.BedId equals bed.BedId
+                            join room in HostelDb.Room on bed.RoomId equals room.RoomId
+                            join status in HostelDb.Status on booking.StatusId equals status.StatusId
+                            where room.Number == Globals.roomnumber && status.Name == "Ожидается оплата"
+                            select guest.FullName;
+                list.AddRange(query.ToList());
+            }
+
+            return list;
         }
         private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -82,6 +105,21 @@ namespace HostelForms
                         where guest.FullName == Globals.guestname
                         select guest;
             return query.First();
+        }
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateGuests();
+        }
+        
+        public void UpdateGuests()
+        {
+            Globals.roomnumber = short.Parse(listBox1.SelectedItem.ToString());
+            listBox2.Items.Clear();
+            foreach (string guest in GetGuests())
+            {
+                listBox2.Items.Add(guest);
+            }
         }
     }
 }
