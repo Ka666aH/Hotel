@@ -97,7 +97,7 @@ namespace HostelForms
                 var statusquery = from status in HostelDb.Status
                                   where status.Name == "Ожидается оплата"
                                   select status.StatusId;
-
+                string finalmessage;
                 HostelDb.BeginTransaction();
 
                 if (!guestquery1.Contains(guest1))
@@ -111,12 +111,14 @@ namespace HostelForms
                         Gender = checkBox1.Checked,
                         Phone = maskedTextBox1.Text
                     });
+                    finalmessage = "Бронирование успешно создано, новый гость создан";
                 }
                 else
                 {
                     var guestquery2 = from guest in HostelDb.Guest
                                       select guest.GuestId;
                     guestguid = Guid.Parse(guestquery2.First().ToString());
+                    finalmessage = "Бронирование успешно создано, гость найден";
                 }
 
                 Booking booking = new Booking();
@@ -140,6 +142,20 @@ namespace HostelForms
                 }
 
                 HostelDb.CommitTransaction();
+                MessageBox.Show(finalmessage);
+                
+                textBox1.Text = string.Empty;
+                textBox2.Text = string.Empty;
+                textBox3.Text = string.Empty;
+                dateTimePicker1.Value = new DateTime(2000,1,1);
+                checkBox1.Checked = true;
+                dateTimePicker2.Value = DateTime.Today;
+                dateTimePicker3.Value = DateTime.Today.AddDays(1);
+                comboBox1.Text = comboBox1.Items[0].ToString();
+                comboBox2.Items.Clear();
+                comboBox3.Items.Clear();
+                textBox4.Text = string.Empty;
+                maskedTextBox1.Clear();
                 //MessageBox.Show("yes");
                 //HostelDb.RollbackTransaction();
                 //Close();
@@ -201,8 +217,8 @@ namespace HostelForms
 
         private void Form2_Load(object sender, EventArgs e)
         {
-            dateTimePicker2.Value = DateTime.Now.Date;
-            dateTimePicker3.Value = DateTime.Now.Date.AddDays(1);
+            dateTimePicker2.Value = DateTime.Today;
+            dateTimePicker3.Value = DateTime.Today.AddDays(1);
 
             comboBox1.Items.Add("Нет");
             comboBox1.Text = comboBox1.Items[0].ToString();
@@ -256,9 +272,9 @@ namespace HostelForms
 
         private void dateTimePicker2_ValueChanged(object sender, EventArgs e)
         {
-            if(dateTimePicker2.Value.Date<DateTime.Now.Date)
+            if(dateTimePicker2.Value.Date<DateTime.Today)
             {
-                dateTimePicker2.Value = DateTime.Now.Date;
+                dateTimePicker2.Value = DateTime.Today;
             }
 
             if(dateTimePicker2.Value.Date>=dateTimePicker3.Value.Date)

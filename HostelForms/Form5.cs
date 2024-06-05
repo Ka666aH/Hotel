@@ -1,4 +1,6 @@
-﻿using System;
+﻿using HostelClasses;
+using LinqToDB;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,8 +9,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using LinqToDB;
-using HostelClasses;
 
 namespace HostelForms
 {
@@ -21,114 +21,149 @@ namespace HostelForms
 
         private void Form5_Load(object sender, EventArgs e)
         {
-            foreach(var x in GetRoom())
+            FillTable();
+            using var HostelDb = new DbHostel();
+            var methods = from m in HostelDb.Method
+                          select m.Name;
+            foreach (string name in methods)
             {
-                dataGridView1.Rows.Add(x.RoomId,x.Number, x.PricePerBed, x.TenantsGender,x.Description);
+                comboBox1.Items.Add(name);
             }
 
-            foreach (var x in GetBeds())
-            {
-                dataGridView6.Rows.Add(x.BedId,x.RoomId,x.Number);
-            }
+            dateTimePicker1.Value = DateTime.Today;
+        }
+        public void FillTable()
+        {
+            dataGridView1.Rows.Clear();
+            using var HostelDb = new DbHostel();
 
-            foreach (var x in GetBookedBeds())
+            foreach (Booking booking in GetBookings())
             {
-                dataGridView9.Rows.Add(x.BookedBedId,x.BedId,x.BookedDate);
-            }
+                //MessageBox.Show(booking.CheckInDate.ToString());
 
-            foreach (var x in GetGuests())
-            {
-                dataGridView2.Rows.Add(x.GuestId,x.FullName,x.BirthDate,x.Gender,x.Phone);
-            }
+                var query1 = from guest in HostelDb.Guest
+                             where guest.GuestId == booking.GuestId
+                             select guest.FullName;
 
-            foreach (var x in GetBreaks())
-            {
-                dataGridView5.Rows.Add(x.BreakfastId,x.Name,x.Cost);
-            }
+                var query2 = from room in HostelDb.Room
+                             join bed in HostelDb.Bed on room.RoomId equals bed.RoomId
+                             where bed.BedId == booking.BedId
+                             select room.Number;
 
-            foreach (var x in GetStatuses())
-            {
-                dataGridView8.Rows.Add(x.StatusId,x.Name);
-            }
+                var query3 = from bed in HostelDb.Bed
+                             where bed.BedId == booking.BedId
+                             select bed.Number;
 
-            foreach (var x in GetBooking())
-            {
-                dataGridView3.Rows.Add(x.BookingId,x.BedId,x.GuestId,x.CheckInDate,x.CheckOutDate,x.BreakfastId,x.Bill,x.StatusId);
-            }
+                var query4 = from breakfast in HostelDb.Breakfast
+                             where breakfast.BreakfastId == booking.BreakfastId
+                             select breakfast.Name;
 
-            foreach (var x in GetMethods())
-            {
-                dataGridView4.Rows.Add(x.MethodId,x.Name);
-            }
-
-            foreach (var x in GetPayments())
-            {
-                dataGridView7.Rows.Add(x.PaymentId,x.BookingId,x.Date,x.MethodId);
+                //dataGridView1.Rows.Add(booking.BookingId, booking.GuestId, null, booking.BedId, booking.CheckInDate, booking.CheckOutDate, booking.BreakfastId, booking.Bill, booking.StatusId);
+                //dataGridView1.Rows.Add(booking.BookingId,null,null,null,booking.CheckInDate,booking.CheckOutDate,null,booking.Bill,booking.StatusName);
+                dataGridView1.SelectionChanged -= new EventHandler(dataGridView1_SelectionChanged);
+                dataGridView1.Rows.Add(booking.BookingId, query1.First().ToString(), query2.First().ToString(), query3.First().ToString()
+                    , booking.CheckInDate, booking.CheckOutDate, query4.First().ToString(), booking.Bill.ToString("C"));
+                dataGridView1.SelectionChanged += new EventHandler(dataGridView1_SelectionChanged);
+                
             }
         }
 
-        public List<Bed> GetBeds()
+        private void dataGridView1_SelectionChanged(object sender, EventArgs e)
         {
-            using var H = new DbHostel();
-            var q = from b in H.Bed
-                    select b;
-            return q.ToList();
+            if(dataGridView1.RowCount>0)
+            dataGridView1.Rows[dataGridView1.CurrentCell.RowIndex].Selected = true;
         }
-        public List<Room> GetRoom()
+
+        public List<Booking> GetBookings()
         {
-            using var H = new DbHostel();
-            var q = from b in H.Room
-                    select b;
-            return q.ToList();
+            using var HosterDb = new DbHostel();
+            var query = from bookings in HosterDb.Booking
+                        join status in HosterDb.Status on bookings.StatusId equals status.StatusId
+                        where status.Name == "Ожидается оплата" 
+                        select bookings;
+            return query.ToList();
         }
-        public List<BookedBed> GetBookedBeds()
+
+        private void button1_Click(object sender, EventArgs e)
         {
-            using var H = new DbHostel();
-            var q = from b in H.BookedBed
-                    select b;
-            return q.ToList();
+            if(button1.Text == "Показать")
+            {
+                button1.Text = "Скрыть";
+                dataGridView1.Visible = true;
+                label4.Location = new Point(65, 341);
+                dateTimePicker1.Location = new Point(189, 341);
+                label5.Location = new Point(49, 370);
+                comboBox1.Location = new Point(189, 370);
+                button2.Location = new Point(189, 397);
+                button3.Location = new Point(189, 426);
+                button4.Location = new Point(189, 455);
+                label3.Location = new Point(437, 10);
+                Size = new Size(965, 530);
+
+            }
+            else 
+            {
+                button1.Text = "Показать";
+                dataGridView1.Visible = false;
+                label4.Location = new Point(65, 75);
+                dateTimePicker1.Location = new Point(189, 75);
+                label5.Location = new Point(49, 104);
+                comboBox1.Location = new Point(189, 104);
+                button2.Location = new Point(189, 131);
+                button3.Location = new Point(189, 160);
+                button4.Location = new Point(189, 189);
+                label3.Location = new Point(135, 10);
+                Size = new Size(360, 265);
+            }
         }
-        public List<Guest> GetGuests()
+
+        private void button2_Click(object sender, EventArgs e)
         {
-            using var H = new DbHostel();
-            var q = from b in H.Guest
-                    select b;
-            return q.ToList();
+            using var HostelDb = new DbHostel();
+            var query = from m in HostelDb.Method
+                        where m.Name == comboBox1.Text
+                        select m.MethodId;
+
+            Payment payment = new Payment();
+            payment.PaymentId = Guid.NewGuid();
+            payment.BookingId = Guid.Parse(dataGridView1[0, dataGridView1.CurrentRow.Index].Value.ToString());
+            payment.Date = dateTimePicker1.Value.Date;
+            payment.MethodId = Guid.Parse(query.First().ToString());
+
+            var query1 = from b in HostelDb.Booking
+                         where b.BookingId == Guid.Parse(dataGridView1[0, dataGridView1.CurrentRow.Index].Value.ToString())
+                         select b;
+
+            var query2 = from s in HostelDb.Status
+                         where s.Name == "В процессе"
+                         select s.StatusId;
+
+            Booking booking = query1.First();
+            booking.StatusId = Guid.Parse(query2.First().ToString());
+
+
+            HostelDb.BeginTransaction();
+
+            HostelDb.Insert(payment);
+            HostelDb.Update(booking);
+
+            HostelDb.CommitTransaction();
+
+            MessageBox.Show("Платёж успешно зафиксирован, статус бронирования обновлён");
+            FillTable();
+            dateTimePicker1.Value = DateTime.Today;
+            comboBox1.Text = string.Empty;
         }
-        public List<Breakfast> GetBreaks()
+
+        private void button3_Click(object sender, EventArgs e)
         {
-            using var H = new DbHostel();
-            var q = from b in H.Breakfast
-                    select b;
-            return q.ToList();
+            FillTable();
         }
-        public List<Status> GetStatuses()
+
+        private void button4_Click(object sender, EventArgs e)
         {
-            using var H = new DbHostel();
-            var q = from b in H.Status
-                    select b;
-            return q.ToList();
-        }
-        public List<Booking> GetBooking()
-        {
-            using var H = new DbHostel();
-            var q = from b in H.Booking
-                    select b;
-            return q.ToList();
-        }
-        public List<Method> GetMethods()
-        {
-            using var H = new DbHostel();
-            var q = from b in H.Method
-                    select b;
-            return q.ToList();
-        }
-        public List<Payment> GetPayments()
-        {
-            using var H = new DbHostel();
-            var q = from b in H.Payment
-                    select b;
-            return q.ToList();
+            Close(); 
+
         }
     }
 }

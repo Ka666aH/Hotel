@@ -36,55 +36,6 @@ namespace HostelForms
             return query.ToList();
         }
 
-        private async void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if(dataGridView1[8, dataGridView1.CurrentRow.Index].Value.ToString()!=comboBox1.Text)
-            {
-                dataGridView1[8, dataGridView1.CurrentRow.Index].Value = comboBox1.Text;
-
-                using var HostelDb = new DbHostel();
-
-                var query1 = from b in HostelDb.Booking
-                            where b.BookingId == Guid.Parse(dataGridView1[0, dataGridView1.CurrentRow.Index].Value.ToString())
-                            select b;
-
-                var query2 = from status in HostelDb.Status
-                             where status.Name == comboBox1.Text
-                             select status.StatusId;
-
-            Booking booking = query1.First();
-                booking.StatusId = Guid.Parse(query2.First().ToString());
-            //MessageBox.Show(booking.StatusId.ToString());
-
-
-
-
-            HostelDb.BeginTransaction();
-
-            HostelDb.Update(booking);
-
-                if(comboBox1.Text == "Отменено")
-                {
-                    for (int i = 0; i < (booking.CheckOutDate.Date - booking.CheckInDate.Date).TotalDays; i++)
-                    {
-                        bookingdates.Add(booking.CheckInDate.Date.AddDays(i));
-                    }
-
-                    var query3 = from bookings in HostelDb.Booking
-                                 join beds in HostelDb.Bed on bookings.BedId equals beds.BedId
-                                 join bookedbeds in HostelDb.BookedBed on beds.BedId equals bookedbeds.BedId
-                                 where bookingdates.Contains(bookedbeds.BookedDate)
-                                 select bookedbeds.BookedBedId;
-
-                    HostelDb.BookedBed.Where(bb => query3.Contains(bb.BookedBedId)).Delete();
-
-                }    
-
-            HostelDb.CommitTransaction();
-
-            }
-        }
-
         private void dataGridView1_SelectionChanged(object sender, EventArgs e)
         {
             string cellValue = dataGridView1[8, dataGridView1.CurrentRow.Index].Value.ToString();
@@ -152,6 +103,57 @@ namespace HostelForms
         private void button2_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if (dataGridView1[8, dataGridView1.CurrentRow.Index].Value.ToString() != comboBox1.Text)
+            {
+                dataGridView1[8, dataGridView1.CurrentRow.Index].Value = comboBox1.Text;
+
+                using var HostelDb = new DbHostel();
+
+                var query1 = from b in HostelDb.Booking
+                             where b.BookingId == Guid.Parse(dataGridView1[0, dataGridView1.CurrentRow.Index].Value.ToString())
+                             select b;
+
+                var query2 = from status in HostelDb.Status
+                             where status.Name == comboBox1.Text
+                             select status.StatusId;
+
+                Booking booking = query1.First();
+                booking.StatusId = Guid.Parse(query2.First().ToString());
+                //MessageBox.Show(booking.StatusId.ToString());
+
+
+
+
+                HostelDb.BeginTransaction();
+
+                HostelDb.Update(booking);
+
+                if (comboBox1.Text == "Отменено")
+                {
+                    for (int i = 0; i < (booking.CheckOutDate.Date - booking.CheckInDate.Date).TotalDays; i++)
+                    {
+                        bookingdates.Add(booking.CheckInDate.Date.AddDays(i));
+                    }
+
+                    var query3 = from bookings in HostelDb.Booking
+                                 join beds in HostelDb.Bed on bookings.BedId equals beds.BedId
+                                 join bookedbeds in HostelDb.BookedBed on beds.BedId equals bookedbeds.BedId
+                                 where bookingdates.Contains(bookedbeds.BookedDate)
+                                 select bookedbeds.BookedBedId;
+
+                    HostelDb.BookedBed.Where(bb => query3.Contains(bb.BookedBedId)).Delete();
+
+                }
+
+                HostelDb.CommitTransaction();
+                MessageBox.Show("Cтатус бронирования успешно обновлён");
+                FillTable();
+
+            }
         }
     }
 }
